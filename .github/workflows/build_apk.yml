@@ -3,51 +3,39 @@ name: Build Android APK
 on:
   push:
     branches:
-      - main  # Change this if your branch is named 'master'
-  workflow_dispatch: # Allows you to run the build manually
+      - main
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: src   # <<< IMPORTANT: run all commands in /src
+
     steps:
-      # 1. Checkout the code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Setup Python
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11' # Flet works well with 3.11
+          python-version: '3.11'
 
-      # 3. Setup Java (Required for Android Build)
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      # 4. Setup Flutter (Flet uses Flutter under the hood)
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-          
-      # 5. Install Flet and Dependencies
       - name: Install Python Dependencies
         run: |
+          pip install --upgrade pip
           pip install flet
+          # If you want, drop these two and just keep them in requirements.txt
           pip install fpdf
           pip install openpyxl
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      # 6. Run the Flet Build command
       - name: Build APK
         run: |
           flet build apk --verbose
 
-      # 7. Upload the APK as an artifact
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
