@@ -12,7 +12,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: src   # <<< IMPORTANT: run all commands in /src
+        working-directory: src   # IMPORTANT: run from /src
 
     steps:
       - name: Checkout code
@@ -23,18 +23,24 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install Python Dependencies
+      - name: Install Python dependencies
         run: |
           pip install --upgrade pip
           pip install flet
-          # If you want, drop these two and just keep them in requirements.txt
+          # Optional, if already in requirements.txt you can omit these:
           pip install fpdf
           pip install openpyxl
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
+      # You can drop the Flutter action; Flet manages its own pinned Flutter
+      # - name: Setup Flutter
+      #   uses: subosito/flutter-action@v2
+      #   with:
+      #     channel: 'stable'
+
       - name: Build APK
         run: |
-          flet build apk --verbose
+          yes | flet build apk --verbose   # auto-accept Flutter SDK install
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
